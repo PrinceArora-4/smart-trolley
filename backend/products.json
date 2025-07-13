@@ -1,0 +1,150 @@
+{
+    "Amul Darkchocolate": {
+        "price": 110,
+        "description": "Amul Darkchocolate - 150g Pack"
+    },
+    "Balaji Wafers Chaat Chaska": {
+        "price": 10,
+        "description": "Balaji Wafers Chaat Chaska - 35g Pack"
+    },
+    "Balaji Wafers Masala Masti": {
+        "price": 10,
+        "description": "Balaji Wafers Masala Masti - 35g Pack"
+    },
+    "Balaji Wafers Simply Salted": {
+        "price": 10,
+        "description": "Balaji Wafers Simply Salted - 35g Pack"
+    },
+    "Balaji Wafers Tomato Twist": {
+        "price": 10,
+        "description": "Balaji Wafers Tomato Twist - 35g Pack"
+    },
+    "Balaji Aloo Sev": {
+        "price": 85,
+        "description": "Balaji Aloo Sev - 400g Pack"
+    },
+    "Balaji Ratlami Sev": {
+        "price": 80,
+        "description": "Balaji Ratlami Sev - 400g Pack"
+    },
+    "Britannia Marie Gold": {
+        "price": 40,
+        "description": "Britannia Marie Gold - 250g Pack"
+    },
+    "Cadbury Celebrations": {
+        "price": 100,
+        "description": "Cadbury Celebrations - 113.8g Pack"
+    },
+    "Closeup": {
+        "price": 110,
+        "description": "Closeup - 150g Pack"
+    },
+    "Colgate Strong Teeth": {
+        "price": 135,
+        "description": "Colgate Strong Teeth - 200g Pack"
+    },
+    "Dove Shampoo": {
+        "price": 150,
+        "description": "Dove Shampoo - 180ml Pack"
+    },
+    "Head & Shoulders Shampoo": {
+        "price": 499,
+        "description": "Head & Shoulders Shampoo - 340ml Pack"
+    },
+    "Dark Fantasy Choco Fills": {
+        "price": 40,
+        "description": "Dark Fantasy Choco Fills - 75g Pack"
+    },
+    "Dove Soap": {
+        "price": 65,
+        "description": "Dove Soap - 100g Pack"
+    },
+    "Everest Chaat Masala": {
+        "price": 44,
+        "description": "Everest Chaat Masala - 50g Pack"
+    },
+    "Everest Garam Masala": {
+        "price": 51,
+        "description": "Everest Garam Masala - 50g Pack"
+    },
+    "Krack Jack": {
+        "price": 40,
+        "description": "Krack Jack - 200g Pack"
+    },
+    "Lifebuoy": {
+        "price": 40,
+        "description": "Lifebuoy - 125g Pack"
+    },
+    "Lakme Peach Moisturiser": {
+        "price": 399,
+        "description": "Lakme Peach Moisturiser - 200ml Pack"
+    },
+    "Liril Bodywash": {
+        "price": 425,
+        "description": "Liril Bodywash - 750ml Pack"
+    },
+    "Maggi Noodles": {
+        "price": 28,
+        "description": "Maggi Noodles - 140g Pack"
+    },
+    "Lux": {
+        "price": 80,
+        "description": "Lux - 150g Pack"
+    },
+    "Nescafe Coffee": {
+        "price": 180,
+        "description": "Nescafe Coffee - 45g Pack"
+    },
+    "Patanjali Aloevera Gel": {
+        "price": 100,
+        "description": "Patanjali Aloevera Gel - 150ml Pack"
+    },
+    "Pears Soap": {
+        "price": 54,
+        "description": "Pears Soap - 100g Pack"
+    },
+    "Real Grape Fruit Juice": {
+        "price": 125,
+        "description": "Real Grape Fruit Juice - 1L Pack"
+    },
+    "Rin Soap": {
+        "price": 25,
+        "description": "Rin Soap - 250g Pack"
+    },
+    "Shreeji Dabeli Masala": {
+        "price": 45,
+        "description": "Shreeji Dabeli Masala - 100g Pack"
+    },
+    "Shreeji Undhiyu Masala": {
+        "price": 40,
+        "description": "Shreeji Undhiyu Masala - 50g Pack"
+    },
+    "Surf Excel": {
+        "price": 235,
+        "description": "Surf Excel - 1.5Kg Pack"
+    },
+    "Tata Salt": {
+        "price": 28,
+        "description": "Tata Salt - 1Kg Pack"
+    },
+    "Tresemme Black Shampoo": {
+        "price": 755,
+        "description": "Tresemme Black Shampoo - 580ml Pack"
+    },
+    "Vicco Vajradanti": {
+        "price": 137,
+        "description": "Vicco Vajradanti - 200g Pack"
+    },
+    "Vaseline Aloe Fresh": {
+        "price": 210,
+        "description": "Vaseline Aloe Fresh - 200ml Pack"
+    },
+    "Vim Bar": {
+        "price": 86,
+        "description": "Vim Bar - 800g Pack"
+    },
+    "Veg Hakka Noodles": {
+        "price": 30,
+        "description": "Veg Hakka Noodles - 140g Pack"
+    }
+}
