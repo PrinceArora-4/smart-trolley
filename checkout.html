@@ -1,111 +1,73 @@
 <!DOCTYPE html>
 <html lang="en" class="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Smart Trolley</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {}
-            }
-        }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - Smart Trolley</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {}
+      }
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="font-[Poppins] bg-gradient-to-b from-blue-100 to-orange-100 dark:from-gray-900 dark:to-gray-800">
-    <div class="container mx-auto p-6 max-w-7xl">
-        <h1 class="text-4xl font-bold text-white bg-gradient-to-r from-blue-600 to-orange-500 p-4 rounded-lg shadow-lg mb-8">Checkout</h1>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 mb-6">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Order Summary</h2>
-            <div class="space-y-4 max-h-60 overflow-y-auto">
-                {% if cart %}
-                    {% for item in cart %}
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
-                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ item.name }}</h3>
-                        <p class="text-gray-600 dark:text-gray-400">{{ item.description }}</p>
-                        <p class="text-blue-600 dark:text-blue-400 font-bold">₹{{ "%.2f" % item.price }} x {{ item.quantity }} = ₹{{ "%.2f" % (item.price * item.quantity) }}</p>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-gray-600 dark:text-gray-400">Your cart is empty.</p>
-                {% endif %}
-            </div>
-            <div class="mt-6 flex justify-between">
-                <span class="text-xl font-bold text-gray-800 dark:text-gray-200">Total: ₹{{ "%.2f" % total }}</span>
-                <span class="text-xl font-bold text-gray-800 dark:text-gray-200">Items: <span id="cart-item-count">0</span></span>
-            </div>
+  <div class="container mx-auto p-6 max-w-7xl">
+    <h1 class="text-4xl font-bold text-white bg-gradient-to-r from-blue-600 to-orange-500 p-4 rounded-lg shadow-lg mb-8">Checkout</h1>
+    
+    <!-- Order Summary -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 mb-6">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Order Summary</h2>
+      <div class="space-y-4 max-h-60 overflow-y-auto">
+        <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Amul Dark Chocolate</h3>
+          <p class="text-gray-600 dark:text-gray-400">Delicious dark chocolate bar</p>
+          <p class="text-blue-600 dark:text-blue-400 font-bold">₹60.00 x 2 = ₹120.00</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Payment Details</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-gray-700 dark:text-gray-300">Name on Card</label>
-                    <input id="card-name" type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Prince Arora">
-                </div>
-                <div>
-                    <label class="block text-gray-700 dark:text-gray-300">Card Number</label>
-                    <input id="card-number" type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1234 5678 8765 4321">
-                </div>
-                <div class="flex space-x-4">
-                    <div class="w-1/2">
-                        <label class="block text-gray-700 dark:text-gray-300">Expiry Date</label>
-                        <input id="card-expiry" type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="MM/YY">
-                    </div>
-                    <div class="w-1/2">
-                        <label class="block text-gray-700 dark:text-gray-300">CVV</label>
-                        <input id="card-cvv" type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="123">
-                    </div>
-                </div>
-                <button id="pay-now" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition w-full shadow-md">Pay Now</button>
-            </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Parle G Biscuits</h3>
+          <p class="text-gray-600 dark:text-gray-400">Classic glucose biscuits</p>
+          <p class="text-blue-600 dark:text-blue-400 font-bold">₹10.00 x 3 = ₹30.00</p>
         </div>
-        <a href="{{ url_for('index') }}" class="mt-6 inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-md">Back to Cart</a>
+      </div>
+      <div class="mt-6 flex justify-between">
+        <span class="text-xl font-bold text-gray-800 dark:text-gray-200">Total: ₹150.00</span>
+        <span class="text-xl font-bold text-gray-800 dark:text-gray-200">Items: 5</span>
+      </div>
     </div>
-    <script>
-        toastr.options = {
-            "closeButton": true,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "timeOut": "3000"
-        };
-        $(document).ready(function() {
-            $('#pay-now').click(function() {
-                $.post('/checkout', {}, (data) => {
-                    if (data.success) {
-                        toastr.success(data.message);
-                        // Clear cart before redirect
-                        $.post('/cart/clear', {}, (clearData) => {
-                            if (clearData.success) {
-                                console.log('Cart cleared successfully');
-                            } else {
-                                console.error('Failed to clear cart:', clearData.error);
-                            }
-                            setTimeout(() => window.location.href = '/', 2000);
-                        }).fail(() => {
-                            console.error('Failed to clear cart');
-                            setTimeout(() => window.location.href = '/', 2000);
-                        });
-                    } else {
-                        toastr.error('Payment failed: ' + (data.error || 'Unknown error'));
-                    }
-                }).fail(() => {
-                    toastr.error('Failed to process payment. Please try again.');
-                });
-            });
-            // Update item count
-            $.get('/cart', function(data) {
-                $('#cart-item-count').text(data.item_count);
-            }).fail(function() {
-                console.error('Failed to fetch cart data for item count');
-            });
-        });
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93e3996f5effadcc',t:'MTc0Njk4NjY3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+
+    <!-- Payment Details -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Payment Details</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-gray-700 dark:text-gray-300">Name on Card</label>
+          <input type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Prince Arora" />
+        </div>
+        <div>
+          <label class="block text-gray-700 dark:text-gray-300">Card Number</label>
+          <input type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1234 5678 8765 4321" />
+        </div>
+        <div class="flex space-x-4">
+          <div class="w-1/2">
+            <label class="block text-gray-700 dark:text-gray-300">Expiry Date</label>
+            <input type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="MM/YY" />
+          </div>
+          <div class="w-1/2">
+            <label class="block text-gray-700 dark:text-gray-300">CVV</label>
+            <input type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="123" />
+          </div>
+        </div>
+        <button class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition w-full shadow-md">Pay Now</button>
+      </div>
+    </div>
+
+    <!-- Back to Cart -->
+    <a href="index.html" class="mt-6 inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-md">Back to Cart</a>
+  </div>
 </body>
 </html>
