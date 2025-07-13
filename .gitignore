@@ -1,0 +1,43 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+.venv/
+env/
+venv/
+
+# VS Code settings
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Model and data weights
+*.pt
+*.pth
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Node/npm cache
+node_modules/
+dist/
+
+# Jupyter (if ever used)
+.ipynb_checkpoints/
+
+# Local settings or build outputs
+*.sqlite3
+*.db
+
+# Ignore dataset training or validation outputs
+*.jpg
+*.png
+runs/

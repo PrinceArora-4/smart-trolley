@@ -1,0 +1,14 @@
+flask
+opencv-python
+ultralytics
+numpy
+scikit-image
+psutil
+matplotlib
+torch
+tqdm
+PyYAML
+filterpy
+lap
+requests
+scipy
