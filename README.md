@@ -55,7 +55,7 @@ SmartTrolley - Self Checkout/
   * [🛒 Index (Cart Page)](https://princearora-4.github.io/smart-trolley/index.html)
   * [💳 Checkout Page](https://princearora-4.github.io/smart-trolley/checkout.html)
 
-* 🎥 **Demo Video:** *\[Will be added after LinkedIn post is live — stay tuned!]*
+🎥 **Demo Video:** [Watch it on LinkedIn](https://www.linkedin.com/posts/princearora4_computervision-smarttrolley-yolov11-activity-7350773628491239424-2-Lz?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFjU1CMBrWZnUtgb7iVJRT0ioQqj6XyNmrI)
 
 ---
 
