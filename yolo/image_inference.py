@@ -1,9 +1,11 @@
 from ultralytics import YOLO
 import cv2
 import os
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+model_path = os.path.join(project_root, 'yolo', 'best.pt')
 
 # Load the trained YOLO model
-model = YOLO(r"yolo\best.pt")
+model = YOLO(model_path)
 
 # Function to run inference on a single image
 def run_inference(image_path):
@@ -38,5 +40,5 @@ def run_inference(image_path):
     print("✅ Inference Complete. Check The Output In 'runs/detect/predict'")
 
 # Example usage:
-image_path = r"yolo\Maggi.jpg"  
+image_path = "Maggi.jpg"  
 run_inference(image_path)

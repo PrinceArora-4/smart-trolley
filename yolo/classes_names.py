@@ -1,9 +1,11 @@
 import json
+import os
 
 # Update paths to your COCO annotation files
-TRAIN_ANNOTATION_FILE = r"SmartTrolley - Custom Dataset\train\annotations.coco.json"
-VALID_ANNOTATION_FILE = r"SmartTrolley - Custom Dataset\val\annotations.coco.json"
-TEST_ANNOTATION_FILE = r"SmartTrolley - Custom Dataset\test\annotations.coco.json"
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+TRAIN_ANNOTATION_FILE = os.path.join(project_root, 'SmartCart - Custom Dataset', 'train', 'annotations.coco.json')
+VALID_ANNOTATION_FILE = os.path.join(project_root, 'SmartCart - Custom Dataset', 'val', 'annotations.coco.json')
+TEST_ANNOTATION_FILE = os.path.join(project_root, 'SmartCart - Custom Dataset', 'test', 'annotations.coco.json')
 
 # Load all annotation files
 def load_coco_json(file_path):

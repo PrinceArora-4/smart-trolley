@@ -4,8 +4,11 @@ import glob
 import os
 import random
 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+model_path = os.path.join(project_root, 'yolo', 'best.pt')
+
 # Load the trained YOLO model
-model = YOLO(r"yolo\best.pt")
+model = YOLO(model_path)
 
 # Get all test images
 image_paths = glob.glob(os.path.join("test", "images", "*.jpg"))  # Modify if images have different extensions

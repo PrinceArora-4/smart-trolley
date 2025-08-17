@@ -1,6 +1,6 @@
-train: #Path to SmartTrolley - Custom Dataset\train\images
-test: #Path to SmartTrolley - Custom Dataset\test\images
-val: #Path to SmartTrolley - Custom Dataset\val\images
+train: ../SmartCart - Custom Dataset/train/images
+test: ../SmartCart - Custom Dataset/test/images
+val: ../SmartCart - Custom Dataset/val/images
 
 nc: 96  # Total Number of Classes
 names: [

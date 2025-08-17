@@ -3,8 +3,9 @@ import json
 import cv2
 
 # Path to COCO annotation file and images
-coco_annotation_path = r"...\annotations.coco.json"  # Modify accordingly
-image_folder = r"...\images" #Modify  accordingly
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+coco_annotation_path = os.path.join(project_root, 'SmartCart - Custom Dataset', 'annotations.coco.json')
+image_folder = os.path.join(project_root, 'SmartCart - Custom Dataset', 'images')
 
 # Load COCO annotations
 with open(coco_annotation_path, "r") as f:

@@ -64,6 +64,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Start/stop camera
+    let webcamFeedRetryCount = 0;
+    const MAX_WEBCAM_FEED_RETRIES = 3;
+    function setWebcamFeedWithRetry() {
+        webcamFeed.src = "/video_feed?" + new Date().getTime(); // cache-busting
+        webcamFeed.classList.remove('hidden');
+        webcamPlaceholder.classList.add('hidden');
+        scanEffect.classList.remove('hidden');
+        webcamFeed.onerror = function() {
+            if (webcamFeedRetryCount < MAX_WEBCAM_FEED_RETRIES) {
+                webcamFeedRetryCount++;
+                console.warn(`Webcam feed failed to load, retrying (${webcamFeedRetryCount})...`);
+                setTimeout(setWebcamFeedWithRetry, 1000);
+            } else {
+                toastr.error('Camera feed failed to load after multiple attempts. Stopping camera.');
+                stopCameraBtn.click();
+                webcamFeedRetryCount = 0;
+            }
+        };
+        webcamFeed.onload = function() {
+            webcamFeedRetryCount = 0;
+        };
+    }
     startCameraBtn.addEventListener('click', () => {
         startCameraBtn.disabled = true;
         startCameraBtn.innerHTML = '<svg class="w-5 h-5 animate-spin inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Starting...';
@@ -74,20 +96,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 startCameraBtn.innerHTML = 'Start Camera';
                 if (data.success) {
                     toastr.success('Camera started');
-                    webcamFeed.src = "/video_feed";
-                    webcamFeed.classList.remove('hidden');
-                    webcamPlaceholder.classList.add('hidden');
-                    scanEffect.classList.remove('hidden');
+                    setWebcamFeedWithRetry();
                     cameraRunning = true;
                     videoFeedErrors = 0;
                     cartErrors = 0;
                     startCartPolling();
                     setTimeout(() => {
                         if (!webcamFeed.complete || webcamFeed.naturalWidth === 0) {
-                            toastr.error('Camera feed failed to load. Stopping camera.');
-                            stopCameraBtn.click();
+                            console.warn('Camera feed still loading after 4 seconds, but continuing...');
+                            // Don't show error or stop camera - just log a warning
+                            // The onerror handler will handle actual failures
                         }
-                    }, 2000);
+                    }, 4000); // Increased from 2000 to 4000ms and made it non-blocking
                 } else {
                     toastr.error(`Failed to start camera: ${data.error || 'Unknown error'}`);
                 }
@@ -99,12 +119,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     });
     stopCameraBtn.addEventListener('click', () => {
-        fetchWithTimeout('/camera/stop', { method: 'POST' })
+        // Reset retry count and stop any pending retries
+        webcamFeedRetryCount = 0;
+        
+        fetchWithTimeout('/camera/stop', { method: 'POST' }, 30000) // Increased timeout to 30 seconds
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     toastr.success('Camera stopped');
+                    // Clear video feed and reset state
                     webcamFeed.src = '';
+                    webcamFeed.onerror = null; // Remove error handler
+                    webcamFeed.onload = null; // Remove load handler
                     webcamFeed.classList.add('hidden');
                     webcamPlaceholder.classList.remove('hidden');
                     scanEffect.classList.add('hidden');
@@ -116,7 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }).catch(error => {
                 console.error('Stop camera error:', error.message);
                 toastr.error('Error stopping camera');
+                // Force reset even on error
                 webcamFeed.src = '';
+                webcamFeed.onerror = null;
+                webcamFeed.onload = null;
                 webcamFeed.classList.add('hidden');
                 webcamPlaceholder.classList.remove('hidden');
                 scanEffect.classList.add('hidden');
@@ -199,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (cameraRunning && !skipVideoFeed) {
                     try {
                         const promptStart = performance.now();
-                        const promptResponse = await fetchWithTimeout('/prompt');
+                        const promptResponse = await fetchWithTimeout('/prompt', {}, 5000); // 5 second timeout for prompt
                         const promptData = await promptResponse.json();
                         console.log(`Prompt fetch took ${(performance.now() - promptStart).toFixed(2)}ms`);
                         if (promptData.action === 'add') {
@@ -228,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                const cartResponse = await fetchWithTimeout('/cart');
+                const cartResponse = await fetchWithTimeout('/cart', {}, 10000); // 10 second timeout for cart
                 const data = await cartResponse.json();
                 console.log('Cart data:', data);
                 localCart = data.cart;

@@ -7,6 +7,8 @@ import time
 import re
 import threading
 import os
+import platform
+import logging
 try:
     import psutil
     CPU_MONITORING = True
@@ -21,11 +23,17 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 # Load YOLOv11 model
 try:
-    model_path = r"C:\Users\91971\OneDrive - Navrachana University\Desktop\TechStack\Projects\SmartTrolley - Self Checkout\yolo\best.pt"
+    model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "yolo", "best.pt")
     print(f"Attempting To Load Model From: {model_path}")
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"YOLO Model Not Found At {model_path}")
     model = YOLO(model_path)
+    # Set device for YOLO (if supported)
+    try:
+        model.to(YOLO_DEVICE)
+        print(f"YOLO Model loaded on device: {YOLO_DEVICE}")
+    except Exception as e:
+        print(f"Could not set YOLO device: {e}")
     print("YOLO Model Loaded successfully")
 except Exception as e:
     print(f"Error Loading YOLO Model: {e}")
@@ -51,19 +59,34 @@ camera = None
 def init_camera(max_retries=3, retry_delay=0.3):
     global camera
     for attempt in range(max_retries):
-        try:
-            if camera is not None:
-                camera.release()
-            camera = cv2.VideoCapture(0)  # Only try index 0
-            if camera.isOpened():
-                print(f"Camera Initialized successfully On Index 0, Attempt {attempt + 1}")
-                return True
-            raise Exception("Webcam Not Accessible")
-        except Exception as e:
-            print(f"Error Initializing Webcam (Attempt {attempt + 1}/{max_retries}): {e}")
-            if attempt < max_retries - 1:
-                time.sleep(retry_delay)
-    print("Failed To Initialize Webcam After All Retries")
+        for cam_index in [0, 1]:  # Try both index 0 and 1
+            try:
+                if camera is not None:
+                    logging.info(f"Releasing camera before re-init (attempt {attempt+1}, index {cam_index})")
+                    camera.release()
+                logging.info(f"Trying to initialize camera at index {cam_index} (attempt {attempt+1})")
+                camera = cv2.VideoCapture(cam_index)
+                if camera.isOpened():
+                    logging.info(f"Camera initialized successfully at index {cam_index}, attempt {attempt+1}")
+                    import time as _time
+                    _time.sleep(0.5)
+                    for i in range(5):
+                        ret, frame = camera.read()
+                        if ret and frame is not None:
+                            logging.info(f"First frame read successfully after {i+1} tries at index {cam_index}")
+                            return True
+                        _time.sleep(0.2)
+                    logging.warning(f"Failed to read first frame after camera initialization at index {cam_index}")
+                    camera.release()
+                    camera = None
+                    continue
+                else:
+                    logging.warning(f"Camera not opened at index {cam_index}")
+            except Exception as e:
+                logging.error(f"Error Initializing Webcam (Attempt {attempt + 1}/{max_retries}, index {cam_index}): {e}")
+        if attempt < max_retries - 1:
+            time.sleep(retry_delay)
+    logging.error("Failed To Initialize Webcam After All Retries (all indices)")
     camera = None
     return False
 
@@ -77,8 +100,23 @@ buffer_lock = threading.Lock()
 last_detection_time = 0
 debounce_interval = 5  # seconds
 frame_count = 0
-frame_skip = 3  # Process every 3rd frame
 processing_thread = None
+# Platform-specific performance tuning
+IS_MAC = platform.system() == 'Darwin'
+if IS_MAC:
+    print("Optimizing for Mac: High FPS, GPU, no frame skip")
+    CONFIG_FPS = 30
+    frame_skip = 1
+    YOLO_DEVICE = 'mps'  # Metal Performance Shaders (Apple GPU)
+    TIMEOUT_SECONDS = 60 * 60 * 24  # 24 hours
+else:
+    CONFIG_FPS = 4
+    frame_skip = 3
+    YOLO_DEVICE = 'cpu'
+    TIMEOUT_SECONDS = 60  # 60 seconds for safety on Lenovo
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 # Mapping of YOLO class name prefixes to products.json keys
 class_to_product_map = {
@@ -154,87 +192,99 @@ def process_frame(frame):
             frame_buffer = (None, frame)
 
 def generate_frames():
-    global camera_active, frame_buffer, camera, last_detection_time, frame_count, processing_thread
+    global camera_active, frame_buffer, camera, last_detection_time, frame_count, processing_thread, camera_ready
     last_detected = {}
     no_detection_start = None
     start_time = time.time()
-    target_fps = 4  # Limit to 4 FPS
-    frame_interval = 1.0 / target_fps
-
+    frame_interval = 1.0 / CONFIG_FPS
+    camera_lock = threading.Lock()
+    
+    # Check if camera is ready before starting
+    if not camera_ready:
+        logging.warning("Camera not ready, returning empty frames")
+        while True:
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
+            time.sleep(0.1)
+    
     while True:
-        if not camera_active or not camera or not camera.isOpened():
+        frame_start = time.time()
+        try:
+            with camera_lock:
+                if not camera_active or not camera or not camera.isOpened() or not camera_ready:
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
+                    time.sleep(0.1)
+                    continue
+                
+                # Safety check for camera object
+                if camera is None:
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
+                    time.sleep(0.1)
+                    continue
+                
+                ret, frame = camera.read()
+                if not ret or frame is None:
+                    logging.warning("Failed to read frame from camera")
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
+                    time.sleep(0.1)
+                    continue
+        except Exception as e:
+            logging.error(f"Camera read error: {e}")
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
             time.sleep(0.1)
             continue
-
-        # Timeout check
-        if time.time() - start_time > 30:
-            print("Frame generation timeout, stopping")
-            camera_active = False
-            if camera:
-                camera.release()
-                camera = None
-            break
-
-        frame_start = time.time()
-        try:
-            success, frame = camera.read()
-            if not success or frame is None:
-                print("Failed to read frame from webcam. Attempting to reinitialize...")
-                if init_camera():
-                    continue
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
-                continue
-        except Exception as e:
-            print(f"Camera read error: {e}")
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
-            continue
-
+            
         frame_count += 1
         if frame_count % frame_skip == 0:
             if processing_thread is None or not processing_thread.is_alive():
-                processing_thread = threading.Thread(target=process_frame, args=(frame,))
+                def process_and_log(frame):
+                    t0 = time.time()
+                    process_frame(frame)
+                    t1 = time.time()
+                    logging.info(f"Frame processed in {t1-t0:.3f}s")
+                processing_thread = threading.Thread(target=process_and_log, args=(frame,))
                 processing_thread.start()
             else:
-                print("Previous processing thread still running, skipping inference")
-
+                logging.info("Previous processing thread still running, skipping inference")
+        
         with buffer_lock:
             if frame_buffer is None:
                 ret, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
                 if not ret:
-                    print("Failed to encode frame")
+                    logging.error("Failed to encode frame")
                     continue
                 frame = buffer.tobytes()
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
                 continue
             results, processed_frame = frame_buffer
-
+        
         if results is None:
             ret, buffer = cv2.imencode('.jpg', processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
             if not ret:
-                print("Failed to encode frame")
+                logging.error("Failed to encode frame")
                 continue
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             continue
-
+        
         detected = False
         current_time = time.time()
         if current_time - last_detection_time < debounce_interval:
             ret, buffer = cv2.imencode('.jpg', processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
             if not ret:
-                print("Failed to encode frame")
+                logging.error("Failed to encode frame")
                 continue
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             continue
-
+        
         for r in results:
             boxes = r.boxes
             for box in boxes:
@@ -296,7 +346,7 @@ def generate_frames():
 
         ret, buffer = cv2.imencode('.jpg', processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
         if not ret:
-            print("Failed to encode frame")
+            logging.error("Failed to encode frame")
             continue
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
@@ -316,9 +366,19 @@ def index():
         print(f"TEMPLATE LOAD ERROR: ", str(e))
         return jsonify({"success": False, "error": f"failed to render index: {str(e)}"}), 500
 
+camera_ready = False
 @app.route('/video_feed')
 def video_feed():
+    global camera_ready
     print("Video feed requested")
+    import time as _time
+    # Wait until camera_ready is True (max 5 seconds)
+    for _ in range(50):
+        if camera_ready:
+            break
+        _time.sleep(0.1)
+    if not camera_ready:
+        print("Camera not ready after waiting in /video_feed.")
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/prompt', methods=['GET'])
@@ -452,40 +512,114 @@ def checkout():
 
 @app.route('/camera/start', methods=['POST'])
 def start_camera():
+    global camera, camera_active, camera_ready, processing_thread, frame_buffer
     print("Start camera requested")
     try:
-        global camera_active
+        # Ensure clean state before starting
+        camera_ready = False
+        camera_active = False
+        processing_thread = None
+        with buffer_lock:
+            frame_buffer = None
+        
+        # Try to initialize camera and read first frame before returning success
         if not init_camera():
+            camera_active = False
+            camera_ready = False
+            if camera is not None:
+                try:
+                    camera.release()
+                except Exception as e:
+                    logging.error(f"Error releasing camera after failed init: {e}")
+                camera = None
             return jsonify({"success": False, "error": "Cannot Access Webcam"})
-        camera_active = True
-        return jsonify({"success": True})
+        
+        # Wait for first frame to be available (up to 2 seconds, 10 tries)
+        import time as _time
+        for i in range(10):
+            if camera is not None:
+                ret, frame = camera.read()
+                if ret and frame is not None:
+                    print(f"First frame available after {i+1} tries.")
+                    camera_active = True
+                    camera_ready = True
+                    return jsonify({"success": True})
+            _time.sleep(0.2)
+        
+        print("Failed to get first frame after camera initialization in /camera/start.")
+        camera_active = False
+        camera_ready = False
+        if camera is not None:
+            try:
+                camera.release()
+            except Exception as e:
+                logging.error(f"Error releasing camera after failed first frame: {e}")
+            camera = None
+        return jsonify({"success": False, "error": "Camera initialized but failed to get first frame."})
     except Exception as e:
         print(f"Error in start_camera: {e}")
+        camera_active = False
+        camera_ready = False
+        if camera is not None:
+            try:
+                camera.release()
+            except Exception as e2:
+                logging.error(f"Error releasing camera after exception: {e2}")
+            camera = None
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/camera/stop', methods=['POST'])
 def stop_camera():
-    print("Stop camera requested")
-    try:
-        global camera_active, camera, processing_thread
-        camera_active = False
-        def release_camera():
-            if camera is not None:
-                camera.release()
-                print("Camera released successfully")
-            else:
-                print("No camera to release")
-            if processing_thread is not None and processing_thread.is_alive():
-                print("Waiting for processing thread to terminate")
-                processing_thread.join(timeout=1.0)
-        threading.Thread(target=release_camera).start()
-        camera = None
-        processing_thread = None
-        return jsonify({"success": True})
-    except Exception as e:
-        print(f"Error in stop_camera: {e}")
-        return jsonify({"success": False, "error": str(e)}), 500
+    global camera_active, camera, processing_thread, camera_ready, frame_buffer, frame_count
+    logging.info("Stop camera requested")
+    
+    # Immediately reset flags to stop all operations
+    camera_active = False
+    camera_ready = False
+    
+    # Clear frame buffer (it's a tuple, not a dict)
+    with buffer_lock:
+        frame_buffer = None
+    
+    # Stop processing thread with timeout
+    if processing_thread and processing_thread.is_alive():
+        try:
+            processing_thread.join(timeout=2.0)
+            logging.info("Processing thread stopped successfully")
+        except Exception as e:
+            logging.error(f"Error joining processing thread: {e}")
+    
+    # Add small delay to ensure all operations are complete
+    time.sleep(0.1)
+    
+    # Release camera with defensive approach
+    if camera is not None:
+        try:
+            # First try to read one frame to ensure camera is responsive
+            ret, _ = camera.read()
+            if not ret:
+                logging.warning("Camera was not responding before release")
+        except Exception as e:
+            logging.warning(f"Error reading from camera before release: {e}")
+        
+        try:
+            camera.release()
+            logging.info("Camera released successfully")
+        except Exception as e:
+            logging.error(f"Error releasing camera: {e}")
+        finally:
+            camera = None
+    
+    # Reset all global variables
+    camera_active = False
+    camera_ready = False
+    processing_thread = None
+    frame_buffer = None
+    frame_count = 0
+    
+    logging.info("Camera stop completed")
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     from werkzeug.serving import run_simple
-    run_simple('localhost', 5000, app, threaded=True)
+    run_simple('localhost', 8080, app, threaded=True)

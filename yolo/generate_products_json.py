@@ -1,9 +1,11 @@
 import yaml
 import json
 import re
+import os
 
-input_file = r"yolo\data.yaml"       
-output_file = r"backend\products.json"
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+input_file = os.path.join(project_root, 'yolo', 'data.yaml')
+output_file = os.path.join(project_root, 'backend', 'products.json')
 
 # === LOAD CLASS NAMES FROM data.yaml ===
 with open(input_file, "r") as f:

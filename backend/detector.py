@@ -2,15 +2,19 @@ import cv2
 import numpy as np
 import json
 import time
+import os
 from ultralytics import YOLO
 from sort.sort import Sort
 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+model_path = os.path.join(project_root, 'yolo', 'best.pt')
 # Load YOLO model and SORT tracker
-model = YOLO(r"yolo\best.pt")
+model = YOLO(model_path)
 tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
 
+products_path = os.path.join(project_root, 'backend', 'products.json')
 # Load product details from products.json
-with open("backend\products.json", "r") as f:
+with open(products_path, "r") as f:
     product_data = json.load(f)
 
 # Store tracked items and currently seen frame IDs

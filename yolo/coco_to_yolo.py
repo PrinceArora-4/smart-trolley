@@ -3,9 +3,10 @@ import os
 from tqdm import tqdm # type: ignore
 
 # 🔹 Paths (Update these if needed)
-COCO_JSON_PATH = r"...\annotations.coco.json"  # Path to COCO JSON file
-IMAGES_DIR = r"...\images"  # Folder containing images
-YOLO_LABELS_DIR = r"...\labels"  # Output folder for YOLO labels
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+COCO_JSON_PATH = os.path.join(project_root, 'SmartCart - Custom Dataset', 'annotations.coco.json')
+IMAGES_DIR = os.path.join(project_root, 'SmartCart - Custom Dataset', 'images')
+YOLO_LABELS_DIR = os.path.join(project_root, 'SmartCart - Custom Dataset', 'labels')
 
 # ✅ Create YOLO labels folder if it doesn’t exist
 os.makedirs(YOLO_LABELS_DIR, exist_ok=True)

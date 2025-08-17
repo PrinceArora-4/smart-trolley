@@ -2,9 +2,11 @@ from ultralytics import YOLO
 import cv2
 import time
 import os
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+model_path = os.path.join(project_root, 'yolo', 'best.pt')
 
 # Load the trained YOLO model
-model = YOLO(r"yolo\best.pt")
+model = YOLO(model_path)
 
 # Create a directory to save snapshots
 os.makedirs("snapshots", exist_ok=True)
