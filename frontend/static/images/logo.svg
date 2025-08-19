@@ -1,0 +1,11 @@
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cart Icon -->
+  <path d="M8 6H12L15 18H25L28 10H16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="19" cy="26" r="2" fill="currentColor"/>
+  <circle cx="27" cy="26" r="2" fill="currentColor"/>
+  <path d="M12 6H6L4 2H1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Text -->
+  <text x="38" y="16" font-family="Poppins, sans-serif" font-size="14" font-weight="700" fill="currentColor">Smart</text>
+  <text x="38" y="30" font-family="Poppins, sans-serif" font-size="14" font-weight="700" fill="currentColor">Cart</text>
+</svg>

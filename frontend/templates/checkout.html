@@ -1,81 +1,261 @@
-<!DOCTYPE html>
-<html lang="en" class="light">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Smart Trolley</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {}
-            }
-        }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="font-[Poppins] bg-gradient-to-b from-blue-100 to-orange-100 dark:from-gray-900 dark:to-gray-800">
-    <div class="container mx-auto p-6 max-w-7xl">
-        <h1 class="text-4xl font-bold text-white bg-gradient-to-r from-blue-600 to-orange-500 p-4 rounded-lg shadow-lg mb-8">Checkout</h1>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 mb-6">
+{% extends "base.html" %}
+{% block title %}Checkout - SmartCart{% endblock %}
+{% block nav_items %}
+<a href="/" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+    Back to Cart
+</a>
+{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-b from-blue-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
+    <div class="container mx-auto p-6 max-w-4xl">
+        
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent mb-2">
+                Checkout
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400">Review your order and complete payment</p>
+        </div>
+        
+        <!-- Progress Indicator -->
+        <div class="mb-8">
+            <div class="flex items-center justify-center space-x-4">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                        ✓
+                    </div>
+                    <span class="ml-2 text-sm text-green-600 dark:text-green-400">Cart</span>
+                </div>
+                <div class="w-16 h-1 bg-green-500 rounded"></div>
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                        2
+                    </div>
+                    <span class="ml-2 text-sm text-primary-600 dark:text-primary-400 font-medium">Checkout</span>
+                </div>
+                <div class="w-16 h-1 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-400 text-sm font-medium">
+                        3
+                    </div>
+                    <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">Complete</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="card p-6 mb-6">
             <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Order Summary</h2>
-            <div class="space-y-4 max-h-60 overflow-y-auto">
+            <div class="space-y-4 max-h-60 overflow-y-auto custom-scrollbar">
                 {% if cart %}
                     {% for item in cart %}
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm flex justify-between items-center">
+                        <div>
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ item.name }}</h3>
                         <p class="text-gray-600 dark:text-gray-400">{{ item.description }}</p>
-                        <p class="text-blue-600 dark:text-blue-400 font-bold">₹{{ "%.2f" % item.price }} x {{ item.quantity }} = ₹{{ "%.2f" % (item.price * item.quantity) }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">₹{{ "%.2f" % item.price }} x {{ item.quantity }}</p>
+                            <p class="text-lg font-bold text-primary-600 dark:text-primary-400">₹{{ "%.2f" % (item.price * item.quantity) }}</p>
+                        </div>
                     </div>
                     {% endfor %}
                 {% else %}
-                    <p class="text-gray-600 dark:text-gray-400">Your cart is empty.</p>
+                    <div class="text-center py-8">
+                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+                        </svg>
+                        <p class="text-gray-600 dark:text-gray-400">Your cart is empty.</p>
+                        <a href="/" class="btn btn-primary mt-4">Continue Shopping</a>
+                    </div>
                 {% endif %}
             </div>
-            <div class="mt-6 flex justify-between">
-                <span class="text-xl font-bold text-gray-800 dark:text-gray-200">Total: ₹{{ "%.2f" % total }}</span>
-                <span class="text-xl font-bold text-gray-800 dark:text-gray-200">Items: <span id="cart-item-count">0</span></span>
+            
+            {% if cart %}
+            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Total Items: <span id="cart-item-count">{{ cart|length }}</span></p>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-gray-200">Total: ₹{{ "%.2f" % total }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Taxes included</p>
+                        <p class="text-sm text-green-600 dark:text-green-400">Free delivery</p>
+                    </div>
+                </div>
             </div>
+            {% endif %}
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6">
+        
+        {% if cart %}
+        <!-- Payment Details -->
+        <div class="card p-6 mb-6">
             <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Payment Details</h2>
-            <div class="space-y-4">
+            
+            <!-- Payment Method Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Payment Method</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="relative">
+                        <input type="radio" name="payment-method" value="card" class="sr-only" checked>
+                        <div class="p-4 border-2 border-primary-500 bg-primary-50 dark:bg-primary-900/20 rounded-lg cursor-pointer">
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"></path>
+                                </svg>
+                                <span class="font-medium text-primary-700 dark:text-primary-300">Credit Card</span>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="relative">
+                        <input type="radio" name="payment-method" value="upi" class="sr-only">
+                        <div class="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary-500">
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                                </svg>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">UPI</span>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="relative">
+                        <input type="radio" name="payment-method" value="wallet" class="sr-only">
+                        <div class="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary-500">
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"></path>
+                                </svg>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Wallet</span>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Card Details Form -->
+            <div id="card-form" class="space-y-4">
                 <div>
-                    <label class="block text-gray-700 dark:text-gray-300">Name on Card</label>
-                    <input id="card-name" type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Prince Arora">
+                    <label class="form-label">Name on Card</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <input id="card-name" type="text" class="form-input pl-10" placeholder="Prince Arora">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-gray-700 dark:text-gray-300">Card Number</label>
-                    <input id="card-number" type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1234 5678 8765 4321">
+                    <label class="form-label">Card Number</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"></path>
+                            </svg>
+                        </div>
+                        <input id="card-number" type="text" class="form-input pl-10" placeholder="1234 5678 8765 4321" maxlength="19">
+                    </div>
                 </div>
                 <div class="flex space-x-4">
                     <div class="w-1/2">
-                        <label class="block text-gray-700 dark:text-gray-300">Expiry Date</label>
-                        <input id="card-expiry" type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="MM/YY">
+                        <label class="form-label">Expiry Date</label>
+                        <input id="card-expiry" type="text" class="form-input" placeholder="MM/YY" maxlength="5">
                     </div>
                     <div class="w-1/2">
-                        <label class="block text-gray-700 dark:text-gray-300">CVV</label>
-                        <input id="card-cvv" type="text" class="w-full p-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="123">
+                        <label class="form-label">CVV</label>
+                        <input id="card-cvv" type="text" class="form-input" placeholder="123" maxlength="4">
                     </div>
                 </div>
-                <button id="pay-now" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition w-full shadow-md">Pay Now</button>
+                
+                <!-- Security Notice -->
+                <div class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-sm text-green-700 dark:text-green-300">Your payment information is secure and encrypted</span>
+                    </div>
+                </div>
+                
+                <button id="pay-now" class="btn bg-green-500 text-white hover:bg-green-600 w-full btn-lg">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    Pay ₹{{ "%.2f" % total }}
+                </button>
             </div>
         </div>
-        <a href="{{ url_for('index') }}" class="mt-6 inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-md">Back to Cart</a>
+        {% endif %}
+        
+        <!-- Back to Cart -->
+        <div class="text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-outline">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+                </svg>
+                Back to Cart
+            </a>
+        </div>
     </div>
-    <script>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
         toastr.options = {
             "closeButton": true,
             "progressBar": true,
             "positionClass": "toast-top-right",
             "timeOut": "3000"
         };
+        
         $(document).ready(function() {
+            // Payment method selection
+            $('input[name="payment-method"]').change(function() {
+                $('input[name="payment-method"]').each(function() {
+                    const container = $(this).next('.p-4');
+                    if ($(this).is(':checked')) {
+                        container.removeClass('border-gray-300 dark:border-gray-600').addClass('border-primary-500 bg-primary-50 dark:bg-primary-900/20');
+                        container.find('span').removeClass('text-gray-700 dark:text-gray-300').addClass('text-primary-700 dark:text-primary-300');
+                        container.find('svg').removeClass('text-gray-600').addClass('text-primary-600');
+                    } else {
+                        container.removeClass('border-primary-500 bg-primary-50 dark:bg-primary-900/20').addClass('border-gray-300 dark:border-gray-600');
+                        container.find('span').removeClass('text-primary-700 dark:text-primary-300').addClass('text-gray-700 dark:text-gray-300');
+                        container.find('svg').removeClass('text-primary-600').addClass('text-gray-600');
+                    }
+                });
+            });
+            
+            // Card number formatting
+            $('#card-number').on('input', function() {
+                let value = $(this).val().replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                $(this).val(formattedValue);
+            });
+            
+            // Expiry date formatting
+            $('#card-expiry').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                $(this).val(value);
+            });
+            
+            // CVV validation
+            $('#card-cvv').on('input', function() {
+                let value = $(this).val().replace(/[^0-9]/gi, '');
+                $(this).val(value);
+            });
+            
+            // Pay now button
             $('#pay-now').click(function() {
+                const button = $(this);
+                const originalText = button.html();
+                
+                // Show loading state
+                button.html('<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>');
+                button.prop('disabled', true);
+                
                 $.post('/checkout', {}, (data) => {
                     if (data.success) {
                         toastr.success(data.message);
@@ -93,11 +273,16 @@
                         });
                     } else {
                         toastr.error('Payment failed: ' + (data.error || 'Unknown error'));
+                        button.html(originalText);
+                        button.prop('disabled', false);
                     }
                 }).fail(() => {
                     toastr.error('Failed to process payment. Please try again.');
+                    button.html(originalText);
+                    button.prop('disabled', false);
                 });
             });
+            
             // Update item count
             $.get('/cart', function(data) {
                 $('#cart-item-count').text(data.item_count);
@@ -105,7 +290,5 @@
                 console.error('Failed to fetch cart data for item count');
             });
         });
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93e3996f5effadcc',t:'MTc0Njk4NjY3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-</body>
-</html>
+</script>
+{% endblock %}

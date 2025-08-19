@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% set hide_header = true %}
+{% set hide_footer = true %}
+
+{% block title %}Welcome to SmartCart - Smart Self Checkout{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-primary-600 via-primary-500 to-purple-600 flex items-center justify-center relative overflow-hidden">
+    <!-- Background Animation Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-white opacity-10 rounded-full animate-pulse-slow"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-white opacity-5 rounded-full animate-pulse-slow" style="animation-delay: 1s;"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white opacity-5 rounded-full animate-pulse-slow" style="animation-delay: 2s;"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        <!-- Logo Animation -->
+        <div class="mb-8 animate-bounce-in">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-white bg-opacity-20 rounded-2xl backdrop-blur-sm mb-6">
+                <img src="{{ url_for('static', filename='images/logo-icon.svg') }}" alt="SmartCart" class="w-16 h-16 text-white">
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-4 animate-slide-up" style="animation-delay: 0.2s;">
+                Smart<span class="text-yellow-300">Cart</span>
+            </h1>
+        </div>
+        
+        <!-- Tagline -->
+        <div class="mb-12 animate-slide-up" style="animation-delay: 0.4s;">
+            <p class="text-xl md:text-2xl text-white text-opacity-90 mb-4 font-light">
+                The Future of Shopping is Here
+            </p>
+            <p class="text-lg text-white text-opacity-75 max-w-2xl mx-auto leading-relaxed">
+                Experience seamless self-checkout with AI-powered product recognition. 
+                Scan, shop, and pay - all in one smart solution.
+            </p>
+        </div>
+        
+        <!-- Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-slide-up" style="animation-delay: 0.6s;">
+            <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6 text-white">
+                <div class="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                    <svg class="w-6 h-6 text-gray-800" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-semibold mb-2">AI Recognition</h3>
+                <p class="text-sm text-white text-opacity-75">Advanced computer vision for instant product identification</p>
+            </div>
+            
+            <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6 text-white">
+                <div class="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                    <svg class="w-6 h-6 text-gray-800" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-semibold mb-2">User Friendly</h3>
+                <p class="text-sm text-white text-opacity-75">Intuitive interface designed for all age groups</p>
+            </div>
+            
+            <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6 text-white">
+                <div class="w-12 h-12 bg-blue-400 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                    <svg class="w-6 h-6 text-gray-800" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-semibold mb-2">Fast Checkout</h3>
+                <p class="text-sm text-white text-opacity-75">Complete your purchase in seconds, not minutes</p>
+            </div>
+        </div>
+        
+        <!-- CTA Button -->
+        <div class="animate-slide-up" style="animation-delay: 0.8s;">
+            <a href="/auth" id="get-started-btn" class="inline-flex items-center px-8 py-4 bg-white text-primary-600 font-semibold rounded-xl hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl">
+                <span>Get Started</span>
+                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+            </a>
+        </div>
+        
+        <!-- Demo Link -->
+        <div class="mt-8 animate-slide-up" style="animation-delay: 1s;">
+            <a href="/" class="text-white text-opacity-75 hover:text-opacity-100 transition-colors duration-200 underline">
+                Skip to Demo →
+            </a>
+        </div>
+    </div>
+    
+    <!-- Floating Shopping Cart Icon -->
+    <div class="absolute bottom-10 right-10 floating-animation">
+        <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-primary-600 flex items-center justify-center z-50 hidden">
+    <div class="text-center text-white">
+        <div class="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-lg">Loading SmartCart...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add entrance animations with staggered delays
+    const elements = document.querySelectorAll('.animate-slide-up, .animate-bounce-in');
+    elements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            el.style.transition = 'all 0.6s ease-out';
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+    
+    // Handle Get Started button click
+    const getStartedBtn = document.getElementById('get-started-btn');
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Show loading overlay
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.classList.remove('hidden');
+            
+            // Simulate loading and redirect
+            setTimeout(() => {
+                window.location.href = '/auth';
+            }, 1000);
+        });
+    }
+    
+    // Add parallax effect to background elements
+    window.addEventListener('mousemove', function(e) {
+        const mouseX = e.clientX / window.innerWidth;
+        const mouseY = e.clientY / window.innerHeight;
+        
+        const elements = document.querySelectorAll('.absolute.w-80, .absolute.w-96, .absolute.w-64');
+        elements.forEach((el, index) => {
+            const speed = (index + 1) * 0.5;
+            const x = (mouseX - 0.5) * speed * 20;
+            const y = (mouseY - 0.5) * speed * 20;
+            el.style.transform = `translate(${x}px, ${y}px)`;
+        });
+    });
+});
+</script>
+{% endblock %}

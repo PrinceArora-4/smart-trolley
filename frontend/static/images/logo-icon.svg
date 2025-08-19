@@ -1,0 +1,7 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cart Icon -->
+  <path d="M6 4H10L13 16H23L26 8H14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="17" cy="24" r="2" fill="currentColor"/>
+  <circle cx="25" cy="24" r="2" fill="currentColor"/>
+  <path d="M10 4H4L2 0H-1" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
