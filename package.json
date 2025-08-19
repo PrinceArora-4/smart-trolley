@@ -1,7 +1,7 @@
 {
   "name": "smart-trolley-frontend",
   "version": "1.0.0",
-  "description": "Frontend assets for Smart Trolley Self Checkout System",
+  "description": "Frontend assets for SmartCart Self Checkout System",
   "main": "index.js",
   "scripts": {
     "test": "echo \"No tests specified\" && exit 0",
