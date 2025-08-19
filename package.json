@@ -9,7 +9,7 @@
     "start": "echo \"Use 'python backend/app.py' to start the Flask server\" && exit 0"
   },
   "keywords": [
-    "smart-trolley",
+    "smart-cart",
     "self-checkout",
     "computer-vision",
     "yolo",
