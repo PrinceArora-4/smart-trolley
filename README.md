@@ -1,4 +1,4 @@
-# 🛒 Smart Trolley - Self Checkout System
+# 🛒 Smart Cart - Self Checkout System
 
 > A computer vision–powered smart self-checkout system that combines **YOLOv11** for real-time product detection and **Flask web interface** for a seamless, interactive billing interface — designed to revolutionize the retail experience.
 
@@ -32,7 +32,7 @@
 ## 📁 Folder Structure
 
 ```bash
-SmartTrolley - Self Checkout/
+SmartCart - Self Checkout/
 ├── backend/
 │   ├── app.py               # Main Flask app
 │   ├── detector.py          # YOLO detector logic
