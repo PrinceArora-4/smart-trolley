@@ -1,0 +1,30 @@
+{
+  "name": "smart-trolley-frontend",
+  "version": "1.0.0",
+  "description": "Frontend assets for Smart Trolley Self Checkout System",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0",
+    "build": "echo \"No build process needed - using CDN assets\" && exit 0",
+    "start": "echo \"Use 'python backend/app.py' to start the Flask server\" && exit 0"
+  },
+  "keywords": [
+    "smart-trolley",
+    "self-checkout",
+    "computer-vision",
+    "yolo",
+    "flask"
+  ],
+  "author": "Prince Arora",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/princearora-4/smart-trolley.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "private": true
+}
