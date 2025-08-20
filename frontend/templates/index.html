@@ -50,7 +50,7 @@
                         </svg>
                         Start Camera
                     </button>
-                    <button id="stop-camera" class="btn bg-red-500 text-white hover:bg-red-600">
+                    <button id="stop-camera" class="btn btn-danger hidden">
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path>
                         </svg>
@@ -108,19 +108,19 @@
                         <span class="text-2xl font-bold text-gray-800 dark:text-gray-200">₹<span id="cart-total">0.00</span></span>
                     </div>
                     <div class="space-x-3">
-                        <button id="clear-cart" class="btn bg-red-500 text-white hover:bg-red-600">
+                        <button id="clear-cart" class="btn btn-danger">
                             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
                                 <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3l1.586-1.586a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414L8 9V6a1 1 0 011-1z" clip-rule="evenodd"></path>
                             </svg>
                             Clear Cart
                         </button>
-                        <a href="{{ url_for('checkout') }}" id="checkout-btn" class="btn bg-green-500 text-white hover:bg-green-600 relative">
+                        <a href="{{ url_for('checkout') }}" id="checkout-btn" class="btn btn-success relative">
                             <span>Checkout</span>
                             <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                             </svg>
-                            <span id="checkout-loading" class="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-90 rounded-lg hidden">
+                            <span id="checkout-loading" class="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-90 rounded-xl hidden">
                                 <svg class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -156,12 +156,12 @@
             <p id="modal-product-name" class="text-gray-600 dark:text-gray-400 mb-6"></p>
             <div class="flex justify-end space-x-3">
             <button id="modal-increment" class="btn btn-primary">Increase Quantity</button>
-            <button id="modal-remove" class="btn bg-red-500 text-white hover:bg-red-600">Remove</button>
+            <button id="modal-remove" class="btn btn-danger">Remove</button>
             <button id="modal-cancel" class="btn btn-ghost">Cancel</button>
             </div>
         </div>
     </div>
 {% endblock %}
 {% block extra_js %}
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
 {% endblock %}

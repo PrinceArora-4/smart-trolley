@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Customer Dashboard - SmartCart{% endblock %}
+
+{% block nav_items %}
+<a href="/orders" class="nav-link">My Orders</a>
+<a href="/profile" class="nav-link">Profile</a>
+<a href="/logout" class="nav-link">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4 py-8">
+        
+        <!-- Welcome Header -->
+        <div class="text-center mb-12 animate-slide-in-up">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-primary-600 to-primary-500 rounded-2xl mb-6 animate-float">
+                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                Welcome Back!
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 text-lg">Choose a store to start your smart shopping experience</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 animate-slide-in-up stagger-2">
+            <button class="quick-action-btn card card-hover p-6 text-center" data-action="scan">
+                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-400 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14 8a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-1">Quick Scan</h3>
+                <p class="text-xs text-gray-600 dark:text-gray-400">Start scanning products</p>
+            </button>
+
+            <button class="quick-action-btn card card-hover p-6 text-center" data-action="search">
+                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-1">Search</h3>
+                <p class="text-xs text-gray-600 dark:text-gray-400">Find products</p>
+            </button>
+
+            <button class="quick-action-btn card card-hover p-6 text-center" data-action="orders">
+                <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-400 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-1">My Orders</h3>
+                <p class="text-xs text-gray-600 dark:text-gray-400">View order history</p>
+            </button>
+
+            <button class="quick-action-btn card card-hover p-6 text-center" data-action="profile">
+                <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-400 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-1">Settings</h3>
+                <p class="text-xs text-gray-600 dark:text-gray-400">Account settings</p>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="max-w-2xl mx-auto mb-12 animate-slide-in-up stagger-3">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <input id="dashboard-search" type="text" class="form-input pl-12 pr-4 py-4 text-lg" placeholder="Search for stores, products, or categories...">
+            </div>
+            <div id="search-results" class="absolute z-10 w-full max-w-2xl bg-white dark:bg-gray-800 rounded-xl shadow-lg mt-2 hidden custom-scrollbar max-h-60 overflow-y-auto"></div>
+        </div>
+
+        <!-- Store Selection -->
+        <div class="animate-slide-in-up stagger-4">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Available Stores</h2>
+                <div class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Showing stores near you</span>
+                </div>
+            </div>
+
+            <div id="stores-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Stores will be populated by JavaScript -->
+            </div>
+
+            <div id="outlets-container" class="mt-8">
+                <!-- Outlets will be populated when a store is selected -->
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="mt-16 animate-slide-in-up stagger-5">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-8">Recent Activity</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Recent Orders</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800 dark:text-gray-200">Order #12345</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">SmartMart Downtown</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-800 dark:text-gray-200">₹1,250</p>
+                                    <span class="badge badge-success">Completed</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800 dark:text-gray-200">Order #12344</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">SmartMart Mall</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-800 dark:text-gray-200">₹890</p>
+                                    <span class="badge badge-success">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Favorite Products</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-primary-400 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-sm font-bold">M</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800 dark:text-gray-200">Maggi Noodles</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">₹28</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-400 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-sm font-bold">A</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800 dark:text-gray-200">Amul Milk</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">₹60</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
