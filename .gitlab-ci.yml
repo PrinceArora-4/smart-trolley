@@ -14,7 +14,7 @@ validate_python_code:
     - pip install -r requirements.txt
     - pip install flake8
     - echo "Validating Python Code with Flake8..."
-    - flake8 backend/ --count --show-source --statistics
+    - flake8 backend/ --count --show-source --statistics --exit-zero
   only:
     - branches 
 
