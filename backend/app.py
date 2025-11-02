@@ -229,7 +229,6 @@ def generate_frames():
     global camera_active, frame_buffer, camera, last_detection_time, frame_count, processing_thread, camera_ready
     last_detected = {}
     no_detection_start = None
-    start_time = time.time()
     frame_interval = 1.0 / CONFIG_FPS
     camera_lock = threading.Lock()
 
@@ -441,7 +440,7 @@ def index():
     try:
         return render_template("index.html")
     except Exception as e:
-        print(f"TEMPLATE LOAD ERROR: ", str(e))
+        print("TEMPLATE LOAD ERROR: ", str(e))
         return (
             jsonify({"success": False, "error": f"failed to render index: {str(e)}"}),
             500,

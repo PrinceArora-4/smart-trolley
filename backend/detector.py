@@ -40,8 +40,7 @@ def process_frame(frame):
     enhanced_items = []
 
     for i, (x1, y1, x2, y2, obj_id) in enumerate(tracked_objects):
-        center_x = int((x1 + x2) / 2)
-        center_y = int((y1 + y2) / 2)
+        
 
         if i < len(results.boxes.cls):
             class_id = int(results.boxes.cls[i].item())
