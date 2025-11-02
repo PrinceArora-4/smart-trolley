@@ -1,0 +1,36 @@
+# .gitlab-ci.yml file for Smart Trolley (Python Project)
+
+stages:
+  - validate
+  - deploy
+
+# --- STAGE 1: VALIDATE ---
+# This job will run on EVERY branch push
+validate_python_code:
+  image: python:3.10
+  stage: validate
+  script:
+    - echo "Installing Dependencies..."
+    - pip install -r requirements.txt
+    - pip install flake8
+    - echo "Validating Python Code with Flake8..."
+    - flake8 backend/ --count --show-source --statistics
+  only:
+    - branches 
+
+# --- STAGE 2: DEPLOY ---
+
+pages:
+  image: python:3.10
+  stage: deploy
+  script:
+    - echo "Deploying Frontend to GitLab Pages from NOVA Branch..."
+    - rm -rf public || true
+    - mkdir public
+    - cp -r frontend/* public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 week
+  only:
+    - nova 
