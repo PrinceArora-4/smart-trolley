@@ -2,10 +2,10 @@
 
 stages:
   - validate
+  - build-docker  
   - deploy
 
 # --- STAGE 1: VALIDATE ---
-# This job will run on EVERY branch push
 validate_python_code:
   image: python:3.10
   stage: validate
@@ -16,10 +16,34 @@ validate_python_code:
     - echo "Validating Python Code with Flake8..."
     - flake8 backend/ --count --show-source --statistics --exit-zero
   only:
-    - branches 
+    - branches
 
-# --- STAGE 2: DEPLOY ---
+# --- STAGE 2: BUILD DOCKER IMAGE ---
+# This is the new job that builds your Dockerfile
+build-docker-image:
+  stage: build-docker
+  image: docker:20.10.16  # We use a special image that has Docker
+  services:
+    - docker:20.10.16-dind # "Docker-in-Docker" service
+  
+  before_script:
+    - echo "Logging into GitLab Container Registry..."
+    # These variables are secret and provided by GitLab
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  
+  script:
+    - echo "Building Docker image..."
+    # Build the image using the Dockerfile in the root
+    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
+    - echo "Pushing Docker image to GitLab Registry..."
+    # Push it to your project's built-in registry
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+  
+  only:
+    - nova # Only run this on the 'nova' branch
 
+# --- STAGE 3: DEPLOY ---
+# This job is the same as before.
 pages:
   image: python:3.10
   stage: deploy
@@ -33,4 +57,4 @@ pages:
       - public
     expire_in: 1 week
   only:
-    - nova 
+    - nova
