@@ -1,29 +1,38 @@
-from flask import Flask, Response, render_template, jsonify, request
-import cv2
-import numpy as np
-from ultralytics import YOLO
 import json
-import time
-import re
-import threading
+import logging
 import os
 import platform
-import logging
+import re
+import threading
+import time
+
+import cv2
+from flask import Flask, Response, jsonify, render_template, request
+from ultralytics import YOLO
+
+YOLO_DEVICE = "cpu"
 try:
     import psutil
+
     CPU_MONITORING = True
 except ImportError:
     CPU_MONITORING = False
     print("psutil not installed, CPU monitoring disabled")
 
-template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend/templates"))
-static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend/static"))
+template_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../frontend/templates")
+)
+static_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../frontend/static")
+)
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 
 # Load YOLOv11 model
 try:
-    model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "yolo", "best.pt")
+    model_path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "yolo", "best.pt"
+    )
     print(f"Attempting To Load Model From: {model_path}")
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"YOLO Model Not Found At {model_path}")
@@ -56,39 +65,55 @@ prompt_queue = []
 
 # Webcam capture
 camera = None
+
+
 def init_camera(max_retries=3, retry_delay=0.3):
     global camera
     for attempt in range(max_retries):
         for cam_index in [0, 1]:  # Try both index 0 and 1
             try:
                 if camera is not None:
-                    logging.info(f"Releasing camera before re-init (attempt {attempt+1}, index {cam_index})")
+                    logging.info(
+                        f"Releasing camera before re-init (attempt {attempt+1}, index {cam_index})"
+                    )
                     camera.release()
-                logging.info(f"Trying to initialize camera at index {cam_index} (attempt {attempt+1})")
+                logging.info(
+                    f"Trying to initialize camera at index {cam_index} (attempt {attempt+1})"
+                )
                 camera = cv2.VideoCapture(cam_index)
                 if camera.isOpened():
-                    logging.info(f"Camera initialized successfully at index {cam_index}, attempt {attempt+1}")
+                    logging.info(
+                        f"Camera initialized successfully at index {cam_index}, attempt {attempt+1}"
+                    )
                     import time as _time
+
                     _time.sleep(0.5)
                     for i in range(5):
                         ret, frame = camera.read()
                         if ret and frame is not None:
-                            logging.info(f"First frame read successfully after {i+1} tries at index {cam_index}")
+                            logging.info(
+                                f"First frame read successfully after {i+1} tries at index {cam_index}"
+                            )
                             return True
                         _time.sleep(0.2)
-                    logging.warning(f"Failed to read first frame after camera initialization at index {cam_index}")
+                    logging.warning(
+                        f"Failed to read first frame after camera initialization at index {cam_index}"
+                    )
                     camera.release()
                     camera = None
                     continue
                 else:
                     logging.warning(f"Camera not opened at index {cam_index}")
             except Exception as e:
-                logging.error(f"Error Initializing Webcam (Attempt {attempt + 1}/{max_retries}, index {cam_index}): {e}")
+                logging.error(
+                    f"Error Initializing Webcam (Attempt {attempt + 1}/{max_retries}, index {cam_index}): {e}"
+                )
         if attempt < max_retries - 1:
             time.sleep(retry_delay)
     logging.error("Failed To Initialize Webcam After All Retries (all indices)")
     camera = None
     return False
+
 
 # Initialize camera on startup
 init_camera()
@@ -102,21 +127,21 @@ debounce_interval = 5  # seconds
 frame_count = 0
 processing_thread = None
 # Platform-specific performance tuning
-IS_MAC = platform.system() == 'Darwin'
+IS_MAC = platform.system() == "Darwin"
 if IS_MAC:
     print("Optimizing for Mac: High FPS, GPU, no frame skip")
     CONFIG_FPS = 30
     frame_skip = 1
-    YOLO_DEVICE = 'mps'  # Metal Performance Shaders (Apple GPU)
+    YOLO_DEVICE = "mps"  # Metal Performance Shaders (Apple GPU)
     TIMEOUT_SECONDS = 60 * 60 * 24  # 24 hours
 else:
     CONFIG_FPS = 4
     frame_skip = 3
-    YOLO_DEVICE = 'cpu'
+    YOLO_DEVICE = "cpu"
     TIMEOUT_SECONDS = 60  # 60 seconds for safety on Lenovo
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 # Mapping of YOLO class name prefixes to products.json keys
 class_to_product_map = {
@@ -156,20 +181,24 @@ class_to_product_map = {
     "vaseline_aloe_fresh": "Vaseline Aloe Fresh",
     "veg_hakka_noodles": "Veg Hakka Noodles",
     "vicco_vajradanti": "Vicco Vajradanti",
-    "vim_bar": "Vim Bar"
+    "vim_bar": "Vim Bar",
 }
+
 
 # Normalize YOLO class names to match products.json keys
 def normalize_class_name(class_name):
     if class_name == "products":
         return None
-    name = re.sub(r'(_back|_front|_side|_cross|_[\d.]+[gmglk]+|_[\d]+rs).*', '', class_name)
+    name = re.sub(
+        r"(_back|_front|_side|_cross|_[\d.]+[gmglk]+|_[\d]+rs).*", "", class_name
+    )
     for prefix, product_name in class_to_product_map.items():
         if name.startswith(prefix):
             if product_name in products:
                 return product_name
     print(f"Misidentified Product: {class_name} (Not In products.json)")
     return None
+
 
 def process_frame(frame):
     global frame_buffer, buffer_lock
@@ -184,12 +213,17 @@ def process_frame(frame):
             print(f"CPU usage during inference: {cpu_percent}%")
         with buffer_lock:
             frame_buffer = (results, frame)
-        detections = [(r.names[int(box.cls)], float(box.conf)) for r in results for box in r.boxes]
-        print(f"YOLO results: {detections if detections else 'No detections'}, inference time: {time.time() - start_time:.2f}s")
+        detections = [
+            (r.names[int(box.cls)], float(box.conf)) for r in results for box in r.boxes
+        ]
+        print(
+            f"YOLO results: {detections if detections else 'No detections'}, inference time: {time.time() - start_time:.2f}s"
+        )
     except Exception as e:
         print(f"YOLO inference error: {e}")
         with buffer_lock:
             frame_buffer = (None, frame)
+
 
 def generate_frames():
     global camera_active, frame_buffer, camera, last_detection_time, frame_count, processing_thread, camera_ready
@@ -198,93 +232,113 @@ def generate_frames():
     start_time = time.time()
     frame_interval = 1.0 / CONFIG_FPS
     camera_lock = threading.Lock()
-    
+
     # Check if camera is ready before starting
     if not camera_ready:
         logging.warning("Camera not ready, returning empty frames")
         while True:
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + b"" + b"\r\n")
             time.sleep(0.1)
-    
+
     while True:
         frame_start = time.time()
         try:
             with camera_lock:
-                if not camera_active or not camera or not camera.isOpened() or not camera_ready:
-                    yield (b'--frame\r\n'
-                           b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
+                if (
+                    not camera_active
+                    or not camera
+                    or not camera.isOpened()
+                    or not camera_ready
+                ):
+                    yield (
+                        b"--frame\r\n"
+                        b"Content-Type: image/jpeg\r\n\r\n" + b"" + b"\r\n"
+                    )
                     time.sleep(0.1)
                     continue
-                
+
                 # Safety check for camera object
                 if camera is None:
-                    yield (b'--frame\r\n'
-                           b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
+                    yield (
+                        b"--frame\r\n"
+                        b"Content-Type: image/jpeg\r\n\r\n" + b"" + b"\r\n"
+                    )
                     time.sleep(0.1)
                     continue
-                
+
                 ret, frame = camera.read()
                 if not ret or frame is None:
                     logging.warning("Failed to read frame from camera")
-                    yield (b'--frame\r\n'
-                           b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
+                    yield (
+                        b"--frame\r\n"
+                        b"Content-Type: image/jpeg\r\n\r\n" + b"" + b"\r\n"
+                    )
                     time.sleep(0.1)
                     continue
         except Exception as e:
             logging.error(f"Camera read error: {e}")
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + b'' + b'\r\n')
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + b"" + b"\r\n")
             time.sleep(0.1)
             continue
-            
+
         frame_count += 1
         if frame_count % frame_skip == 0:
             if processing_thread is None or not processing_thread.is_alive():
+
                 def process_and_log(frame):
                     t0 = time.time()
                     process_frame(frame)
                     t1 = time.time()
                     logging.info(f"Frame processed in {t1-t0:.3f}s")
-                processing_thread = threading.Thread(target=process_and_log, args=(frame,))
+
+                processing_thread = threading.Thread(
+                    target=process_and_log, args=(frame,)
+                )
                 processing_thread.start()
             else:
-                logging.info("Previous processing thread still running, skipping inference")
-        
+                logging.info(
+                    "Previous processing thread still running, skipping inference"
+                )
+
         with buffer_lock:
             if frame_buffer is None:
-                ret, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+                ret, buffer = cv2.imencode(
+                    ".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80]
+                )
                 if not ret:
                     logging.error("Failed to encode frame")
                     continue
                 frame = buffer.tobytes()
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                yield (
+                    b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
+                )
                 continue
             results, processed_frame = frame_buffer
-        
+
         if results is None:
-            ret, buffer = cv2.imencode('.jpg', processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+            ret, buffer = cv2.imencode(
+                ".jpg", processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80]
+            )
             if not ret:
                 logging.error("Failed to encode frame")
                 continue
             frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
             continue
-        
+
         detected = False
         current_time = time.time()
         if current_time - last_detection_time < debounce_interval:
-            ret, buffer = cv2.imencode('.jpg', processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+            ret, buffer = cv2.imencode(
+                ".jpg", processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80]
+            )
             if not ret:
                 logging.error("Failed to encode frame")
                 continue
             frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
             continue
-        
+
         for r in results:
             boxes = r.boxes
             for box in boxes:
@@ -296,82 +350,113 @@ def generate_frames():
                     continue
                 detected = True
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
-                
+
                 label = f"{product_name} ({conf:.2f})"
                 cv2.rectangle(processed_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(processed_frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                
-                if cls_name in last_detected and current_time - last_detected[cls_name] < 2:
+                cv2.putText(
+                    processed_frame,
+                    label,
+                    (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (0, 255, 0),
+                    2,
+                )
+
+                if (
+                    cls_name in last_detected
+                    and current_time - last_detected[cls_name] < 2
+                ):
                     continue
                 last_detected[cls_name] = current_time
                 last_detection_time = current_time
-                
+
                 for item in cart:
-                    if item['name'] == product_name:
+                    if item["name"] == product_name:
                         # Do not increment quantity here; prompt user via modal
-                        prompt_queue.append({
-                            "action": "prompt",
-                            "item": {
-                                "id": item['id'],
-                                "name": product_name,
-                                "price": products[product_name]['price'],
-                                "description": products[product_name]['description'],
-                                "quantity": item['quantity']
+                        prompt_queue.append(
+                            {
+                                "action": "prompt",
+                                "item": {
+                                    "id": item["id"],
+                                    "name": product_name,
+                                    "price": products[product_name]["price"],
+                                    "description": products[product_name][
+                                        "description"
+                                    ],
+                                    "quantity": item["quantity"],
+                                },
                             }
-                        })
-                        print(f"Prompting for duplicate: {product_name} (conf={conf}, current quantity={item['quantity']})")
+                        )
+                        print(
+                            f"Prompting for duplicate: {product_name} (conf={conf}, current quantity={item['quantity']})"
+                        )
                         break
                 else:
                     new_item = {
                         "id": len(cart),
                         "name": product_name,
-                        "price": products[product_name]['price'],
-                        "description": products[product_name]['description'],
-                        "quantity": 1
+                        "price": products[product_name]["price"],
+                        "description": products[product_name]["description"],
+                        "quantity": 1,
                     }
                     cart.append(new_item)
-                    prompt_queue.append({
-                        "action": "add",
-                        "item": new_item
-                    })
+                    prompt_queue.append({"action": "add", "item": new_item})
                     print(f"Added to cart: {product_name} (conf={conf})")
 
         if not detected:
             if no_detection_start is None:
                 no_detection_start = current_time
             elif current_time - no_detection_start > 10:
-                cv2.putText(processed_frame, "No products detected", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                cv2.putText(
+                    processed_frame,
+                    "No products detected",
+                    (50, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (0, 0, 255),
+                    2,
+                )
         else:
             no_detection_start = None
 
-        ret, buffer = cv2.imencode('.jpg', processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+        ret, buffer = cv2.imencode(
+            ".jpg", processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80]
+        )
         if not ret:
             logging.error("Failed to encode frame")
             continue
         frame = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
         # Control frame rate
         elapsed = time.time() - frame_start
         if elapsed < frame_interval:
             time.sleep(frame_interval - elapsed)
 
-@app.route('/')
+
+@app.route("/")
 def index():
     print("Index requested")
     try:
-        return render_template('index.html')
+        return render_template("index.html")
     except Exception as e:
         print(f"TEMPLATE LOAD ERROR: ", str(e))
-        return jsonify({"success": False, "error": f"failed to render index: {str(e)}"}), 500
+        return (
+            jsonify({"success": False, "error": f"failed to render index: {str(e)}"}),
+            500,
+        )
+
 
 camera_ready = False
-@app.route('/video_feed')
+
+
+@app.route("/video_feed")
 def video_feed():
     global camera_ready
     print("Video feed requested")
     import time as _time
+
     # Wait until camera_ready is True (max 5 seconds)
     for _ in range(50):
         if camera_ready:
@@ -379,9 +464,12 @@ def video_feed():
         _time.sleep(0.1)
     if not camera_ready:
         print("Camera not ready after waiting in /video_feed.")
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(
+        generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
+    )
 
-@app.route('/prompt', methods=['GET'])
+
+@app.route("/prompt", methods=["GET"])
 def get_prompt():
     global prompt_queue
     try:
@@ -394,41 +482,47 @@ def get_prompt():
         print(f"Error in get_prompt: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/cart', methods=['GET'])
+
+@app.route("/cart", methods=["GET"])
 def get_cart():
     print("Cart request received")
     try:
-        item_count = sum(item['quantity'] for item in cart)
-        response = jsonify({
-            "cart": cart,
-            "total": sum(item['price'] * item['quantity'] for item in cart),
-            "item_count": item_count
-        })
+        item_count = sum(item["quantity"] for item in cart)
+        response = jsonify(
+            {
+                "cart": cart,
+                "total": sum(item["price"] * item["quantity"] for item in cart),
+                "item_count": item_count,
+            }
+        )
         print("Cart response:", response.get_data(as_text=True))
         return response
     except Exception as e:
         print(f"Error in get_cart: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/cart/add', methods=['POST'])
+
+@app.route("/cart/add", methods=["POST"])
 def add_item():
     print("Add item requested")
     try:
         data = request.json
-        product_name = data['name']
+        product_name = data["name"]
         if product_name in products:
             for item in cart:
-                if item['name'] == product_name:
-                    item['quantity'] += 1
+                if item["name"] == product_name:
+                    item["quantity"] += 1
                     print(f"Incremented quantity for {product_name}")
                     return jsonify({"success": True})
-            cart.append({
-                "id": len(cart),
-                "name": product_name,
-                "price": products[product_name]['price'],
-                "description": products[product_name]['description'],
-                "quantity": 1
-            })
+            cart.append(
+                {
+                    "id": len(cart),
+                    "name": product_name,
+                    "price": products[product_name]["price"],
+                    "description": products[product_name]["description"],
+                    "quantity": 1,
+                }
+            )
             print(f"Added new item: {product_name}")
             return jsonify({"success": True})
         return jsonify({"success": False})
@@ -436,19 +530,20 @@ def add_item():
         print(f"Error in add_item: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/cart/update/<int:item_id>', methods=['POST'])
+
+@app.route("/cart/update/<int:item_id>", methods=["POST"])
 def update_item(item_id):
     print(f"Update item {item_id} requested")
     try:
         data = request.json
-        action = data.get('action')
+        action = data.get("action")
         for item in cart:
-            if item['id'] == item_id:
-                if action == 'increment':
-                    item['quantity'] += 1
-                elif action == 'decrement' and item['quantity'] > 1:
-                    item['quantity'] -= 1
-                elif action == 'remove':
+            if item["id"] == item_id:
+                if action == "increment":
+                    item["quantity"] += 1
+                elif action == "decrement" and item["quantity"] > 1:
+                    item["quantity"] -= 1
+                elif action == "remove":
                     cart.remove(item)
                 return jsonify({"success": True})
         return jsonify({"success": False})
@@ -456,18 +551,20 @@ def update_item(item_id):
         print(f"Error in update_item: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/cart/remove/<int:item_id>', methods=['POST'])
+
+@app.route("/cart/remove/<int:item_id>", methods=["POST"])
 def remove_item(item_id):
     print(f"Remove item {item_id} requested")
     try:
         global cart
-        cart = [item for item in cart if item['id'] != item_id]
+        cart = [item for item in cart if item["id"] != item_id]
         return jsonify({"success": True})
     except Exception as e:
         print(f"Error in remove_item: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/cart/clear', methods=['POST'])
+
+@app.route("/cart/clear", methods=["POST"])
 def clear_cart():
     print("Clear cart requested")
     try:
@@ -478,16 +575,21 @@ def clear_cart():
         print(f"Error in clear_cart: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/search', methods=['GET'])
+
+@app.route("/search", methods=["GET"])
 def search_products():
     print("Search requested")
     try:
-        query = request.args.get('query', '').lower().strip()
+        query = request.args.get("query", "").lower().strip()
         print(f"Search query received: {query}")
         if not query:
             return jsonify([])
         suggestions = [
-            {"name": name, "price": details['price'], "description": details['description']}
+            {
+                "name": name,
+                "price": details["price"],
+                "description": details["description"],
+            }
             for name, details in products.items()
             if query in name.lower()
         ]
@@ -497,20 +599,36 @@ def search_products():
         print(f"Error in search_products: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/checkout', methods=['GET', 'POST'])
+
+@app.route("/checkout", methods=["GET", "POST"])
 def checkout():
     print("Checkout requested")
     try:
-        if request.method == 'POST':
+        if request.method == "POST":
             global cart
             cart = []  # Clear cart after successful payment
-            return jsonify({"success": True, "message": "Payment successful! Thank You For Shopping."})
-        return render_template('checkout.html', cart=cart, total=sum(item['price'] * item['quantity'] for item in cart))
+            return jsonify(
+                {
+                    "success": True,
+                    "message": "Payment successful! Thank You For Shopping.",
+                }
+            )
+        return render_template(
+            "checkout.html",
+            cart=cart,
+            total=sum(item["price"] * item["quantity"] for item in cart),
+        )
     except Exception as e:
         print(f"Error in checkout: {e}")
-        return jsonify({"success": False, "error": f"Failed to render checkout: {str(e)}"}), 500
+        return (
+            jsonify(
+                {"success": False, "error": f"Failed to render checkout: {str(e)}"}
+            ),
+            500,
+        )
 
-@app.route('/camera/start', methods=['POST'])
+
+@app.route("/camera/start", methods=["POST"])
 def start_camera():
     global camera, camera_active, camera_ready, processing_thread, frame_buffer
     print("Start camera requested")
@@ -521,7 +639,7 @@ def start_camera():
         processing_thread = None
         with buffer_lock:
             frame_buffer = None
-        
+
         # Try to initialize camera and read first frame before returning success
         if not init_camera():
             camera_active = False
@@ -533,9 +651,10 @@ def start_camera():
                     logging.error(f"Error releasing camera after failed init: {e}")
                 camera = None
             return jsonify({"success": False, "error": "Cannot Access Webcam"})
-        
+
         # Wait for first frame to be available (up to 2 seconds, 10 tries)
         import time as _time
+
         for i in range(10):
             if camera is not None:
                 ret, frame = camera.read()
@@ -545,7 +664,7 @@ def start_camera():
                     camera_ready = True
                     return jsonify({"success": True})
             _time.sleep(0.2)
-        
+
         print("Failed to get first frame after camera initialization in /camera/start.")
         camera_active = False
         camera_ready = False
@@ -555,7 +674,12 @@ def start_camera():
             except Exception as e:
                 logging.error(f"Error releasing camera after failed first frame: {e}")
             camera = None
-        return jsonify({"success": False, "error": "Camera initialized but failed to get first frame."})
+        return jsonify(
+            {
+                "success": False,
+                "error": "Camera initialized but failed to get first frame.",
+            }
+        )
     except Exception as e:
         print(f"Error in start_camera: {e}")
         camera_active = False
@@ -568,19 +692,20 @@ def start_camera():
             camera = None
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/camera/stop', methods=['POST'])
+
+@app.route("/camera/stop", methods=["POST"])
 def stop_camera():
     global camera_active, camera, processing_thread, camera_ready, frame_buffer, frame_count
     logging.info("Stop camera requested")
-    
+
     # Immediately reset flags to stop all operations
     camera_active = False
     camera_ready = False
-    
+
     # Clear frame buffer (it's a tuple, not a dict)
     with buffer_lock:
         frame_buffer = None
-    
+
     # Stop processing thread with timeout
     if processing_thread and processing_thread.is_alive():
         try:
@@ -588,10 +713,10 @@ def stop_camera():
             logging.info("Processing thread stopped successfully")
         except Exception as e:
             logging.error(f"Error joining processing thread: {e}")
-    
+
     # Add small delay to ensure all operations are complete
     time.sleep(0.1)
-    
+
     # Release camera with defensive approach
     if camera is not None:
         try:
@@ -601,7 +726,7 @@ def stop_camera():
                 logging.warning("Camera was not responding before release")
         except Exception as e:
             logging.warning(f"Error reading from camera before release: {e}")
-        
+
         try:
             camera.release()
             logging.info("Camera released successfully")
@@ -609,17 +734,19 @@ def stop_camera():
             logging.error(f"Error releasing camera: {e}")
         finally:
             camera = None
-    
+
     # Reset all global variables
     camera_active = False
     camera_ready = False
     processing_thread = None
     frame_buffer = None
     frame_count = 0
-    
-    logging.info("Camera stop completed")
-    return jsonify({'success': True})
 
-if __name__ == '__main__':
+    logging.info("Camera stop completed")
+    return jsonify({"success": True})
+
+
+if __name__ == "__main__":
     from werkzeug.serving import run_simple
-    run_simple('localhost', 8080, app, threaded=True)
+
+    run_simple("localhost", 8080, app, threaded=True)

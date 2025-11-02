@@ -1,18 +1,17 @@
-import cv2
-import numpy as np
 import json
-import time
 import os
-from ultralytics import YOLO
+import time
+import numpy as np
 from sort.sort import Sort
+from ultralytics import YOLO
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-model_path = os.path.join(project_root, 'yolo', 'best.pt')
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+model_path = os.path.join(project_root, "yolo", "best.pt")
 # Load YOLO model and SORT tracker
 model = YOLO(model_path)
 tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
 
-products_path = os.path.join(project_root, 'backend', 'products.json')
+products_path = os.path.join(project_root, "backend", "products.json")
 # Load product details from products.json
 with open(products_path, "r") as f:
     product_data = json.load(f)
@@ -20,6 +19,7 @@ with open(products_path, "r") as f:
 # Store tracked items and currently seen frame IDs
 tracked_items = {}
 frame_item_ids = set()
+
 
 def process_frame(frame):
     global tracked_items, frame_item_ids
@@ -53,17 +53,14 @@ def process_frame(frame):
 
         # Add new product if not already tracked
         if obj_id not in tracked_items:
-            tracked_items[obj_id] = {
-                "name": class_name.lower(),
-                "time": time.time()
-            }
+            tracked_items[obj_id] = {"name": class_name.lower(), "time": time.time()}
 
         item_info = {
             "id": int(obj_id),
             "name": class_name.lower(),
             "bbox": [int(x1), int(y1), int(x2), int(y2)],
             "confidence": round(float(detections[i][4]), 2),
-            "timestamp": tracked_items[obj_id]["time"]
+            "timestamp": tracked_items[obj_id]["time"],
         }
         enhanced_items.append(item_info)
 
