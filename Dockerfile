@@ -1,23 +1,26 @@
-# 1. Start with the FULL Python 3.10 image 
-FROM python:3.10
+# 1. Start with the Python 3.13 image
+FROM python:3.13
 
-# 2. Set the working directory inside the container
+
+RUN apt-get update && apt-get install -y libgl1-mesa-glx
+
+# 3. Set the working directory
 WORKDIR /app
 
-# 3. Copy the requirements file first
+# 4. Copy requirements (for caching)
 COPY requirements.txt .
 
-# 4. Install all the dependencies
+# 5. Install all dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. Copy the rest of your project code into the container
+# 6. Copy the rest of your project code
 COPY . .
 
-# 6. Set the working directory to the backend folder
+# 7. Set the final working directory
 WORKDIR /app/backend
 
-# 7. Expose the port your app runs on
+# 8. Expose the port
 EXPOSE 8080
 
-# 8. The command to run your Flask app
+# 9. The command to run your app
 CMD ["python", "app.py"]
