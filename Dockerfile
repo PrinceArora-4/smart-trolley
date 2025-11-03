@@ -1,8 +1,7 @@
 # 1. Start with the Python 3.13 image
 FROM python:3.13
 
-
-RUN apt-get update && apt-get install -y libgl1-mesa-glx
+RUN apt-get update && apt-get install -y libgl1
 
 # 3. Set the working directory
 WORKDIR /app
